@@ -10,6 +10,7 @@ dependencies = [
     "rich",
     "anthropic",
     "requests",
+    "json-repair",
 ]
 
 [project.scripts]
