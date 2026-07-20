@@ -8,6 +8,7 @@ dependencies = [
     "typer",
     "pydantic>=2",
     "rich",
+    "anthropic",
 ]
 
 [project.scripts]

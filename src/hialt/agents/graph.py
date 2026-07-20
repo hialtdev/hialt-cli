@@ -3,32 +3,55 @@ from typing import Literal
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph
 
-from hialt.state import AgentState
+from hialt.agents.coder import CoderAgent
+from hialt.agents.critic import CriticAgent
+from hialt.agents.planner import PlannerAgent
+from hialt.providers.base import Provider, StubProvider
+from hialt.state import AgentState, ExecutionPlan
 
 Route = Literal["revise", "approved", "failed"]
 
+_DEFAULT_PROVIDER: Provider = StubProvider()
+
 
 def planner_node(state: AgentState) -> dict:
-    # TODO: llm.complete(...) — produce a plan from state["task"]
+    agent = PlannerAgent(_DEFAULT_PROVIDER)
     return {
-        "plan": f"[placeholder plan for: {state['task']}]",
+        "plan": agent.plan(state["task"]),
         "status": "planning",
     }
 
 
 def coder_node(state: AgentState) -> dict:
-    # TODO: llm.complete(...) — implement code from plan + critic_feedback
+    plan = state["plan"]
+    if plan is None:
+        plan = ExecutionPlan(
+            objective=state["task"],
+            assumptions=[],
+            implementation_steps=[],
+            files_affected=[],
+            acceptance_criteria=[],
+        )
+    agent = CoderAgent(_DEFAULT_PROVIDER)
     return {
-        "current_code": f"[placeholder code for: {state['task']}]",
+        "current_code": agent.code(plan, state["critic_feedback"]),
         "status": "coding",
     }
 
 
 def critic_node(state: AgentState) -> dict:
-    # TODO: llm.complete(...) — adversarially review current_code against plan
-    # Placeholder: return CriticIssue(...) list; empty means no findings.
+    plan = state["plan"]
+    if plan is None:
+        plan = ExecutionPlan(
+            objective=state["task"],
+            assumptions=[],
+            implementation_steps=[],
+            files_affected=[],
+            acceptance_criteria=[],
+        )
+    agent = CriticAgent(_DEFAULT_PROVIDER)
     return {
-        "critic_feedback": [],
+        "critic_feedback": agent.review(plan, state["current_code"]),
         "status": "reviewing",
     }
 
