@@ -9,6 +9,7 @@ dependencies = [
     "pydantic>=2",
     "rich",
     "anthropic",
+    "requests",
 ]
 
 [project.scripts]
