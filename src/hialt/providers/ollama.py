@@ -1,6 +1,6 @@
 import requests
 
-from hialt.providers.base import ProviderError
+from hialt.providers.base import LLMResponse, ProviderError, TokenUsage
 
 _DEFAULT_TIMEOUT_SECONDS = 60
 
@@ -16,7 +16,7 @@ class OllamaProvider:
         self._model = model
         self._host = host.rstrip("/")
 
-    def generate(self, prompt: str, system: str | None = None) -> str:
+    def generate(self, prompt: str, system: str | None = None) -> LLMResponse:
         payload: dict = {
             "model": self._model,
             "prompt": prompt,
@@ -43,4 +43,14 @@ class OllamaProvider:
             raise ProviderError(
                 f"Ollama response from {url} missing 'response' field"
             )
-        return str(data["response"])
+
+        return LLMResponse(
+            content=str(data["response"]),
+            finish_reason=str(data.get("done_reason") or "stop"),
+            usage=TokenUsage(
+                input_tokens=int(data.get("prompt_eval_count") or 0),
+                output_tokens=int(data.get("eval_count") or 0),
+            ),
+            model=str(data.get("model") or self._model),
+            raw_response=data,
+        )

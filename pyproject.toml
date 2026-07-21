@@ -19,6 +19,8 @@ hialt = "hialt.cli:app"
 [dependency-groups]
 dev = [
     "pytest",
+    "ruff",
+    "mypy",
 ]
 
 [build-system]

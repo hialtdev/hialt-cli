@@ -20,6 +20,12 @@ def main() -> None:
 def _format_value(key: str, value: object) -> str:
     if key == "plan" and isinstance(value, ExecutionPlan):
         return value.objective
+    if key == "verification_result" and value is not None:
+        summary = getattr(value, "summary", None)
+        if summary is not None:
+            return str(summary)
+    if key == "trace" and isinstance(value, list):
+        return f"{len(value)} event(s)"
     if key == "critic_feedback" and isinstance(value, list):
         if not value:
             return "[]"
@@ -44,8 +50,10 @@ def run(
         "plan": None,
         "current_code": "",
         "critic_feedback": [],
+        "verification_result": None,
         "iteration": 0,
         "status": "planning",
+        "trace": [],
     }
     graph = build_graph()
     config = {"configurable": {"thread_id": thread_id}}

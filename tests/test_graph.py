@@ -1,5 +1,5 @@
-from hialt.agents.graph import route_after_critic
-from hialt.state import AgentState, CriticIssue
+from hialt.agents.graph import route_after_critic, route_after_verifier
+from hialt.state import AgentState, CriticIssue, ToolResult, VerificationResult
 
 
 def _issue(
@@ -19,14 +19,39 @@ def _issue(
     )
 
 
+def _tool(name: str, success: bool) -> ToolResult:
+    return ToolResult(
+        tool=name,
+        success=success,
+        exit_code=0 if success else 1,
+        stdout="",
+        stderr="" if success else "fail",
+        duration_seconds=0.01,
+    )
+
+
+def _verification(passed: bool) -> VerificationResult:
+    return VerificationResult(
+        passed=passed,
+        results=[
+            _tool("pytest", passed),
+            _tool("ruff", passed),
+            _tool("mypy", passed),
+        ],
+        summary="ok" if passed else "failed",
+    )
+
+
 def _base_state(**overrides) -> AgentState:
     state: AgentState = {
         "task": "demo",
         "plan": None,
         "current_code": "code",
         "critic_feedback": [],
+        "verification_result": None,
         "iteration": 0,
         "status": "reviewing",
+        "trace": [],
     }
     state.update(overrides)
     return state
@@ -61,3 +86,24 @@ def test_route_failed_when_blocking_and_iteration_at_limit():
         ],
     )
     assert route_after_critic(state) == "failed"
+
+
+def test_route_after_verifier_continues_to_critic_when_passed():
+    state = _base_state(verification_result=_verification(True))
+    assert route_after_verifier(state) == "critic"
+
+
+def test_route_after_verifier_revises_when_failed_under_iteration_cap():
+    state = _base_state(
+        iteration=1,
+        verification_result=_verification(False),
+    )
+    assert route_after_verifier(state) == "revise"
+
+
+def test_route_after_verifier_fails_when_failed_at_iteration_cap():
+    state = _base_state(
+        iteration=3,
+        verification_result=_verification(False),
+    )
+    assert route_after_verifier(state) == "failed"
