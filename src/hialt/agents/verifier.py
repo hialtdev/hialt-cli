@@ -1,5 +1,9 @@
+import logging
+
 from hialt.state import ToolResult, VerificationResult
 from hialt.tools.runner import ToolRunner
+
+logger = logging.getLogger(__name__)
 
 
 class VerifierAgent:
@@ -9,6 +13,7 @@ class VerifierAgent:
         self._runner = tool_runner or ToolRunner()
 
     def verify(self, path: str | None = None) -> VerificationResult:
+        logger.info("Running verification suite")
         results = [
             self._runner.run_pytest(path),
             self._runner.run_ruff(path),

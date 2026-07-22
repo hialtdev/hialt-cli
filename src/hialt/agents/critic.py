@@ -1,8 +1,11 @@
 import json_repair
+import logging
 from pydantic import ValidationError
 
 from hialt.providers.base import Provider
 from hialt.state import CriticIssue, ExecutionPlan
+
+logger = logging.getLogger(__name__)
 
 _PARSE_ERROR_RECOMMENDATION = (
     "Critic output for this item could not be parsed; review raw model output."
@@ -16,6 +19,7 @@ class CriticAgent:
 
     def review(self, plan: ExecutionPlan, code: str) -> list[CriticIssue]:
         # Stub: real prompting via self._provider.generate(...) comes later.
+        logger.debug("Rendering critic response")
         # TODO: _build_prompt(plan, code) — prompt construction is written separately.
         _ = plan, code
         return []
@@ -24,6 +28,7 @@ class CriticAgent:
         try:
             parsed = json_repair.loads(raw)
         except Exception:
+            logger.warning("Critic response could not be parsed")
             return [self._fallback_issue(raw)]
 
         if not isinstance(parsed, list):

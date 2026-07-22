@@ -7,32 +7,28 @@ import logging
 from rich.console import Console
 from rich.logging import RichHandler
 
-_CONFIGURED = False
+logger = logging.getLogger(__name__)
+
+_HANDLER_NAME = "hialt-rich-console"
 
 
 def configure_logging(level: str = "INFO") -> None:
     """Configure application logging once. Safe to call repeatedly."""
-    global _CONFIGURED
-
     root = logging.getLogger()
     numeric_level = getattr(logging, level.upper(), logging.INFO)
-
-    if _CONFIGURED:
-        root.setLevel(numeric_level)
-        for handler in root.handlers:
-            handler.setLevel(numeric_level)
-        return
-
-    root.handlers.clear()
     root.setLevel(numeric_level)
 
-    handler = RichHandler(
-        console=Console(stderr=True),
-        show_path=False,
-        rich_tracebacks=True,
-        markup=True,
+    handler = next(
+        (item for item in root.handlers if item.name == _HANDLER_NAME), None
     )
+    if handler is None:
+        handler = RichHandler(
+            console=Console(stderr=True),
+            show_path=False,
+            rich_tracebacks=True,
+            markup=True,
+        )
+        handler.name = _HANDLER_NAME
+        handler.setFormatter(logging.Formatter("%(message)s"))
+        root.addHandler(handler)
     handler.setLevel(numeric_level)
-    handler.setFormatter(logging.Formatter("%(message)s"))
-    root.addHandler(handler)
-    _CONFIGURED = True

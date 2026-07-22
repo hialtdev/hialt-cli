@@ -2,9 +2,12 @@
 
 from datetime import datetime, timezone
 from enum import Enum
+import logging
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
+
+logger = logging.getLogger(__name__)
 
 
 class TraceEvent(str, Enum):
@@ -41,6 +44,7 @@ def make_trace_entry(
     message: str,
     metadata: dict[str, Any] | None = None,
 ) -> TraceEntry:
+    logger.debug("Trace entry recorded: node=%s event=%s", node, event_type.value)
     return TraceEntry(
         timestamp=datetime.now(timezone.utc),
         node=node,

@@ -1,6 +1,9 @@
+import logging
 from typing import Any, Protocol
 
 from pydantic import BaseModel, Field
+
+logger = logging.getLogger(__name__)
 
 
 class TokenUsage(BaseModel):

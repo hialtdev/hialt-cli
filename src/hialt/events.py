@@ -1,19 +1,16 @@
-from datetime import datetime, timezone
-from typing import Any
+"""Deprecated compatibility imports for the former event subsystem.
 
-from hialt.state import AgentEvent, EventType
+New code must use :mod:`hialt.execution_trace` directly.
+"""
 
+import logging
 
-def make_event(
-    node: str,
-    event_type: EventType,
-    message: str,
-    metadata: dict[str, Any] | None = None,
-) -> AgentEvent:
-    return AgentEvent(
-        timestamp=datetime.now(timezone.utc),
-        node=node,
-        event_type=event_type,
-        message=message,
-        metadata=metadata or {},
-    )
+from hialt.execution_trace import TraceEntry, TraceEvent, make_trace_entry
+
+logger = logging.getLogger(__name__)
+
+AgentEvent = TraceEntry
+EventType = TraceEvent
+make_event = make_trace_entry
+
+__all__ = ["AgentEvent", "EventType", "make_event"]

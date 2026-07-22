@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "HIALT CLI",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "hialt.cli",
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "run",
+                "--task",
+                "Implement a hello world function"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        }
+    ]
+}

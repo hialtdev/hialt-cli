@@ -1,3 +1,4 @@
+import logging
 from uuid import uuid4
 
 import typer
@@ -6,15 +7,19 @@ from rich.markup import escape
 from rich.panel import Panel
 
 from hialt.agents.graph import build_graph
+from hialt.logging_config import configure_logging
+from hialt.settings import get_settings
 from hialt.state import AgentState, CriticIssue, ExecutionPlan
 
 app = typer.Typer(help="hialt: Plan-Execute-Verify agent CLI", no_args_is_help=True)
 console = Console()
+logger = logging.getLogger(__name__)
 
 
 @app.callback()
 def main() -> None:
     """hialt CLI entry point."""
+    configure_logging(get_settings().log_level)
 
 
 def _format_value(key: str, value: object) -> str:
@@ -24,8 +29,10 @@ def _format_value(key: str, value: object) -> str:
         summary = getattr(value, "summary", None)
         if summary is not None:
             return str(summary)
+    if key == "execution_trace" and isinstance(value, list):
+        return f"{len(value)} trace entr{'y' if len(value) == 1 else 'ies'}"
     if key == "trace" and isinstance(value, list):
-        return f"{len(value)} event(s)"
+        return f"{len(value)} trace entr{'y' if len(value) == 1 else 'ies'} (legacy)"
     if key == "critic_feedback" and isinstance(value, list):
         if not value:
             return "[]"
@@ -53,9 +60,11 @@ def run(
         "verification_result": None,
         "iteration": 0,
         "status": "planning",
-        "trace": [],
+        "execution_trace": [],
+        "trace": [],  # Deprecated compatibility state; remove after migration.
     }
     graph = build_graph()
+    logger.info("Starting graph run")
     config = {"configurable": {"thread_id": thread_id}}
 
     console.print(
@@ -70,6 +79,7 @@ def run(
                 console.print(f"  [dim]{escape(str(key))}[/dim]: {escape(rendered)}")
 
     console.print("[green]done[/green]")
+    logger.info("Graph run completed")
 
 
 if __name__ == "__main__":
