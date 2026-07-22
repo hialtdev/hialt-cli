@@ -30,9 +30,7 @@ def _format_value(key: str, value: object) -> str:
         if summary is not None:
             return str(summary)
     if key == "execution_trace" and isinstance(value, list):
-        return f"{len(value)} trace entr{'y' if len(value) == 1 else 'ies'}"
-    if key == "trace" and isinstance(value, list):
-        return f"{len(value)} trace entr{'y' if len(value) == 1 else 'ies'} (legacy)"
+        return f"{len(value)} trace entr{'y' if len(value) == 1 else 'ies'}"    
     if key == "critic_feedback" and isinstance(value, list):
         if not value:
             return "[]"
@@ -60,8 +58,7 @@ def run(
         "verification_result": None,
         "iteration": 0,
         "status": "planning",
-        "execution_trace": [],
-        "trace": [],  # Deprecated compatibility state; remove after migration.
+        "execution_trace": [],        
     }
     graph = build_graph()
     logger.info("Starting graph run")

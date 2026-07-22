@@ -51,9 +51,9 @@ def _base_state(**overrides) -> AgentState:
         "verification_result": None,
         "iteration": 0,
         "status": "reviewing",
-        "trace": [],
+        "execution_trace": [],        
     }
-    state.update(overrides)
+    state.update(overrides) # type: ignore[arg-type]
     return state
 
 

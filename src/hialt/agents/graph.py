@@ -50,7 +50,7 @@ class GraphDependencies:
 
 def _trace_update(entries: list[TraceEntry]) -> dict[str, list[TraceEntry]]:
     """Write the canonical trace and a temporary compatibility mirror together."""
-    return {"execution_trace": entries, "trace": entries}
+    return {"execution_trace": entries}
 
 
 def _ensure_plan(state: AgentState) -> ExecutionPlan:
