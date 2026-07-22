@@ -68,7 +68,7 @@ def run(
         Panel(f"[bold]task[/bold] {escape(task)}\n[bold]thread[/bold] {thread_id}")
     )
 
-    for update in graph.stream(initial_state, config=config, stream_mode="updates"):
+    for update in graph.stream(initial_state, config=config, stream_mode="updates"): 
         for node_name, payload in update.items():
             console.print(f"[cyan]{escape(node_name)}[/cyan]")
             for key, value in payload.items():
