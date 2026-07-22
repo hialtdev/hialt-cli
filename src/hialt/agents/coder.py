@@ -1,5 +1,9 @@
+import logging
+
 from hialt.providers.base import Provider
 from hialt.state import CriticIssue, ExecutionPlan
+
+logger = logging.getLogger(__name__)
 
 
 class CoderAgent:
@@ -8,5 +12,6 @@ class CoderAgent:
 
     def code(self, plan: ExecutionPlan, feedback: list[CriticIssue]) -> str:
         # Stub: real prompting via self._provider.generate(...) comes later.
+        logger.debug("Rendering coder response")
         _ = feedback
         return f"[placeholder code for: {plan.objective}]"

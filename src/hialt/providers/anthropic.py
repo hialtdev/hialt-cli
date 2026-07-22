@@ -1,8 +1,11 @@
 import os
+import logging
 
 from anthropic import Anthropic
 
 from hialt.providers.base import LLMResponse, TokenUsage
+
+logger = logging.getLogger(__name__)
 
 
 class AnthropicProvider:
@@ -16,6 +19,7 @@ class AnthropicProvider:
         self._client = Anthropic(api_key=api_key)
 
     def generate(self, prompt: str, system: str | None = None) -> LLMResponse:
+        logger.debug("Sending Anthropic generation request")
         kwargs: dict = {
             "model": self._model,
             "max_tokens": 4096,

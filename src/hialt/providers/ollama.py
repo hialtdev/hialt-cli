@@ -1,6 +1,10 @@
+import logging
+
 import requests
 
 from hialt.providers.base import LLMResponse, ProviderError, TokenUsage
+
+logger = logging.getLogger(__name__)
 
 _DEFAULT_TIMEOUT_SECONDS = 60
 
@@ -17,6 +21,7 @@ class OllamaProvider:
         self._host = host.rstrip("/")
 
     def generate(self, prompt: str, system: str | None = None) -> LLMResponse:
+        logger.debug("Sending Ollama generation request to %s", self._host)
         payload: dict = {
             "model": self._model,
             "prompt": prompt,
@@ -35,6 +40,7 @@ class OllamaProvider:
             response.raise_for_status()
             data = response.json()
         except requests.RequestException as exc:
+            logger.error("Ollama request failed: %s", exc)
             raise ProviderError(
                 f"Ollama request to {url} failed: {exc}"
             ) from exc

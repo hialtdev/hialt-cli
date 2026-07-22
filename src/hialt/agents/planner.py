@@ -1,5 +1,9 @@
+import logging
+
 from hialt.providers.base import Provider
 from hialt.state import ExecutionPlan
+
+logger = logging.getLogger(__name__)
 
 
 class PlannerAgent:
@@ -8,6 +12,7 @@ class PlannerAgent:
 
     def plan(self, task: str) -> ExecutionPlan:
         # Stub: real prompting via self._provider.generate(...) comes later.
+        logger.debug("Rendering planner response")
         return ExecutionPlan(
             objective=f"[placeholder plan for: {task}]",
             assumptions=[],

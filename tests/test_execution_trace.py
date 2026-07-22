@@ -6,8 +6,8 @@ import pytest
 from pydantic import ValidationError
 
 from hialt.agents.graph import build_graph, coder_node, planner_node
-from hialt.events import make_event
-from hialt.state import AgentEvent, AgentState, EventType, ToolResult, VerificationResult
+from hialt.execution_trace import TraceEntry, TraceEvent, make_trace_entry
+from hialt.state import AgentState, ToolResult, VerificationResult
 
 
 def _passing_verification() -> VerificationResult:
@@ -52,41 +52,41 @@ def _base_state(**overrides) -> AgentState:
         "verification_result": None,
         "iteration": 0,
         "status": "planning",
-        "trace": [],
+        "execution_trace": [],
     }
-    state.update(overrides)
+    state.update(overrides) # type: ignore[arg-type]
     return state
 
 
 def test_agent_event_is_frozen():
-    event = make_event("planner", EventType.PLANNING_STARTED, "Planning started")
+    event = make_trace_entry("planner", TraceEvent.PLANNING_STARTED, "Planning started")
     with pytest.raises(ValidationError):
         event.message = "mutated"  # type: ignore[misc]
 
 
 def test_trace_reducer_concatenates_partial_updates():
     first = [
-        make_event("planner", EventType.PLANNING_STARTED, "Planning started"),
+        make_trace_entry("planner", TraceEvent.PLANNING_STARTED, "Planning started"),
     ]
     second = [
-        make_event("coder", EventType.CODING_STARTED, "Coding started"),
+        make_trace_entry("coder", TraceEvent.CODING_STARTED, "Coding started"),
     ]
     merged = operator.add(first, second)
     assert len(merged) == 2
-    assert merged[0].event_type == EventType.PLANNING_STARTED
-    assert merged[1].event_type == EventType.CODING_STARTED
+    assert merged[0].event_type == TraceEvent.PLANNING_STARTED
+    assert merged[1].event_type == TraceEvent.CODING_STARTED
 
 
 def test_nodes_append_started_and_completed_events():
     state = _base_state()
     after_plan = planner_node(state)
-    assert any(e.event_type == EventType.PLANNING_STARTED for e in after_plan["trace"])
-    assert any(e.event_type == EventType.PLANNING_COMPLETED for e in after_plan["trace"])
+    assert any(e.event_type == TraceEvent.PLANNING_STARTED for e in after_plan["execution_trace"])
+    assert any(e.event_type == TraceEvent.PLANNING_COMPLETED for e in after_plan["execution_trace"])
 
-    mid: AgentState = {**state, **after_plan, "trace": []}
+    mid: AgentState = {**state, **after_plan, "execution_trace": []}  # type: ignore[assignment]
     after_code = coder_node(mid)
-    assert any(e.event_type == EventType.CODING_STARTED for e in after_code["trace"])
-    assert any(e.event_type == EventType.CODING_COMPLETED for e in after_code["trace"])
+    assert any(e.event_type == TraceEvent.CODING_STARTED for e in after_code["execution_trace"])
+    assert any(e.event_type == TraceEvent.CODING_COMPLETED for e in after_code["execution_trace"])
 
 
 def test_graph_run_appends_trace_across_nodes():
@@ -100,17 +100,17 @@ def test_graph_run_appends_trace_across_nodes():
             config={"configurable": {"thread_id": "trace-test"}},
         )
 
-    trace = final["trace"]
+    trace = final["execution_trace"]
     assert len(trace) >= 4
     types = [event.event_type for event in trace]
-    assert EventType.GRAPH_STARTED in types
-    assert EventType.PLANNING_COMPLETED in types
-    assert EventType.CODING_COMPLETED in types
-    assert EventType.VERIFICATION_COMPLETED in types
-    assert EventType.CRITIQUE_COMPLETED in types
-    assert EventType.APPROVED in types
+    assert TraceEvent.GRAPH_STARTED in types
+    assert TraceEvent.PLANNING_COMPLETED in types
+    assert TraceEvent.CODING_COMPLETED in types
+    assert TraceEvent.VERIFICATION_COMPLETED in types
+    assert TraceEvent.CRITIQUE_COMPLETED in types
+    assert TraceEvent.APPROVED in types
     # Events are appended, not overwritten to a single node snapshot
-    assert types.count(EventType.CODING_COMPLETED) >= 1
-    assert all(isinstance(event, AgentEvent) for event in trace)
+    assert types.count(TraceEvent.CODING_COMPLETED) >= 1
+    assert all(isinstance(event, TraceEntry) for event in trace)
     assert all(isinstance(event.timestamp, datetime) for event in trace)
     assert all(event.timestamp.tzinfo is not None for event in trace)

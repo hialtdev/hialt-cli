@@ -1,3 +1,5 @@
+import logging
+
 from hialt.providers.anthropic import AnthropicProvider
 from hialt.providers.base import (
     LLMResponse,
@@ -7,6 +9,8 @@ from hialt.providers.base import (
     TokenUsage,
 )
 from hialt.providers.ollama import OllamaProvider
+
+logger = logging.getLogger(__name__)
 
 __all__ = [
     "AnthropicProvider",
