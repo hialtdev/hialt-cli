@@ -13,6 +13,7 @@ class VerifierAgent:
         self._runner = tool_runner or ToolRunner()
 
     def verify(self, path: str | None = None) -> VerificationResult:
+        """Run deterministic quality checks and summarize their objective result."""
         logger.info("Running verification suite")
         results = [
             self._runner.run_pytest(path),

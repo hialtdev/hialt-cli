@@ -27,6 +27,7 @@ __all__ = [
 
 
 class CriticIssue(BaseModel):
+    """Represent one validated critique finding used for routing decisions."""
     description: str
     severity: Literal["minor", "major", "blocking"]
     category: str
@@ -36,6 +37,7 @@ class CriticIssue(BaseModel):
 
 
 class ExecutionPlan(BaseModel):
+    """Carry the planner's structured handoff to coding and critique roles."""
     objective: str
     assumptions: list[str]
     implementation_steps: list[str]
@@ -44,6 +46,7 @@ class ExecutionPlan(BaseModel):
 
 
 class ToolResult(BaseModel):
+    """Capture deterministic command evidence without raising expected failures."""
     tool: str
     success: bool
     exit_code: int
@@ -53,12 +56,14 @@ class ToolResult(BaseModel):
 
 
 class VerificationResult(BaseModel):
+    """Summarize the verifier's objective result across tool executions."""
     passed: bool
     results: list[ToolResult]
     summary: str
 
 
 class AgentState(TypedDict):
+    """Define workflow-owned state shared and updated by LangGraph nodes."""
     task: str
     plan: ExecutionPlan | None
     current_code: str

@@ -19,6 +19,7 @@ class RoleConfig(BaseModel):
 
 
 class Settings(BaseModel):
+    """Centralize runtime policy and role configuration for graph composition."""
     log_level: str = "INFO"
     max_iterations: int = 3
     tool_timeout_seconds: float = 60.0
@@ -36,6 +37,7 @@ class Settings(BaseModel):
 
     @classmethod
     def from_environment(cls) -> "Settings":
+        """Create settings from supported process-level environment overrides."""
         """Build settings from the small set of process-level overrides we support."""
         return cls(
             log_level=os.getenv("HIALT_LOG_LEVEL", "INFO"),
