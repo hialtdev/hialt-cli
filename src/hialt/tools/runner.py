@@ -17,16 +17,19 @@ class ToolRunner:
         self._timeout_seconds = timeout_seconds
 
     def run_pytest(self, path: str | None = None) -> ToolResult:
+        """Run pytest through the deterministic subprocess boundary."""
         cmd = ["pytest"]
         if path:
             cmd.append(path)
         return self.run("pytest", cmd)
 
     def run_ruff(self, path: str | None = None) -> ToolResult:
+        """Run Ruff through the deterministic subprocess boundary."""
         cmd = ["ruff", "check", path or "."]
         return self.run("ruff", cmd)
 
     def run_mypy(self, path: str | None = None) -> ToolResult:
+        """Run MyPy through the deterministic subprocess boundary."""
         cmd = ["mypy", path or "."]
         return self.run("mypy", cmd)
 

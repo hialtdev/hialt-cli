@@ -7,11 +7,13 @@ logger = logging.getLogger(__name__)
 
 
 class PlannerAgent:
+    """Own the planning capability boundary; planning behavior is currently a stub."""
+
     def __init__(self, provider: Provider) -> None:
         self._provider = provider
 
     def plan(self, task: str) -> ExecutionPlan:
-        # Stub: real prompting via self._provider.generate(...) comes later.
+        """Return a placeholder plan; this stub does not call its provider."""
         logger.debug("Rendering planner response")
         return ExecutionPlan(
             objective=f"[placeholder plan for: {task}]",

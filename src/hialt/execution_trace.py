@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class TraceEvent(str, Enum):
+    """Name stable workflow facts recorded in the immutable execution journal."""
     GRAPH_STARTED = "graph_started"
     PLANNING_STARTED = "planning_started"
     PLANNING_COMPLETED = "planning_completed"
@@ -29,6 +30,7 @@ class TraceEvent(str, Enum):
 
 
 class TraceEntry(BaseModel):
+    """Represent one frozen, timestamped fact about workflow execution."""
     model_config = ConfigDict(frozen=True)
 
     timestamp: datetime
@@ -44,6 +46,7 @@ def make_trace_entry(
     message: str,
     metadata: dict[str, Any] | None = None,
 ) -> TraceEntry:
+    """Create a UTC trace entry for graph nodes to append to AgentState."""
     logger.debug("Trace entry recorded: node=%s event=%s", node, event_type.value)
     return TraceEntry(
         timestamp=datetime.now(timezone.utc),

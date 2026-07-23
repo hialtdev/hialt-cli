@@ -14,17 +14,20 @@ _TRUNCATE = 500
 
 
 class CriticAgent:
+    """Own structured critique; provider-backed review remains a stub."""
+
     def __init__(self, provider: Provider) -> None:
         self._provider = provider
 
     def review(self, plan: ExecutionPlan, code: str) -> list[CriticIssue]:
-        # Stub: real prompting via self._provider.generate(...) comes later.
+        """Return findings for code; currently a stub that returns no findings."""
         logger.debug("Rendering critic response")
         # TODO: _build_prompt(plan, code) — prompt construction is written separately.
         _ = plan, code
         return []
 
     def _parse_response(self, raw: str) -> list[CriticIssue]:
+        """Repair and validate model-shaped critique output into structured issues."""
         try:
             parsed = json_repair.loads(raw)
         except Exception:

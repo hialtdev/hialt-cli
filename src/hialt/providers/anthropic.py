@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class AnthropicProvider:
-    """Anthropic Messages API provider. Reads ANTHROPIC_API_KEY from the environment."""
+    """Adapt Messages API output; its live API behavior is not yet validated."""
 
     def __init__(self, model: str = "claude-sonnet-4-6") -> None:
         api_key = os.environ.get("ANTHROPIC_API_KEY")
@@ -19,6 +19,7 @@ class AnthropicProvider:
         self._client = Anthropic(api_key=api_key)
 
     def generate(self, prompt: str, system: str | None = None) -> LLMResponse:
+        """Send a Messages API request and normalize text, usage, and model data."""
         logger.debug("Sending Anthropic generation request")
         kwargs: dict = {
             "model": self._model,

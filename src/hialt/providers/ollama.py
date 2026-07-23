@@ -21,6 +21,7 @@ class OllamaProvider:
         self._host = host.rstrip("/")
 
     def generate(self, prompt: str, system: str | None = None) -> LLMResponse:
+        """Call Ollama and normalize its non-streaming generation response."""
         logger.debug("Sending Ollama generation request to %s", self._host)
         payload: dict = {
             "model": self._model,
