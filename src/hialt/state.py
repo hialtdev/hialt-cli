@@ -3,10 +3,10 @@ import operator
 from typing import Annotated, Literal, TypedDict
 
 from pydantic import BaseModel, Field
-
+from hialt.execution_trace import TraceEntry
 
 logger = logging.getLogger(__name__)
-from hialt.execution_trace import TraceEntry
+
 
 __all__ = [
     "AgentState",
@@ -73,4 +73,4 @@ class AgentState(TypedDict):
         "approved",
         "failed",
     ]
-    execution_trace: Annotated[list[TraceEntry], operator.add]    
+    execution_trace: Annotated[list[TraceEntry], operator.add]
